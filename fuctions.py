@@ -10,4 +10,13 @@ def ramdomset(dict):
     rm_namelst = rm.sample(names, len(names))
     for i in range(len(names)):
         cn.desk_lst[i].append(dict[rm_namelst[i]])
-    return rm_namelst #가장 효율적인 자리배치를 찾았을 경우의 리스트를 순차적으로 변수에 저장
+    return rm_namelst #가장 효율적인 자리배치를 찾았을 경우의 리스트를 순차적으로 변수에 저장해야함, 애는 그런거 못함
+
+def numpylylst(classroom, desk, plate):
+    mathdesk = np.array(desk)
+    mathclass = np.arrary(clasroom)
+    mathplate = np.array(plate)
+    return mathclass, mathdesk, mathplate
+
+def deskset():
+    
