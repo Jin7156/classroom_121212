@@ -23,14 +23,14 @@ desk_lst_highbad = [
     []
 ]
 
-desk_lst_shortbad[
+desk_lst_shortbad = [
     [],
     [],
     [],
     [],
 ]
 
-desk_lst_higgood[
+desk_lst_higgood = [
     [],
     [],
     [],
@@ -41,7 +41,7 @@ desk_lst_higgood[
     [],
 ]
 
-desk_lst_shortgood[
+desk_lst_shortgood = [
     [],
     [],
     [],

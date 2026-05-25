@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>교실 시뮬레이션 학생 데이터 수집</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-add { background-color: #007bff; color: white; }
+        .btn-export { background-color: #28a745; color: white; margin-left: 10px; }
+        .result-area { margin-top: 20px; }
+        pre { background: #e9ecef; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 14px; }
+        .student-list { margin-top: 15px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>학생 데이터 입력 폼</h2>
+    
+    <div class="form-group">
+        <label for="studentName">이름</label>
+        <input type="text" id="studentName" placeholder="예: 홍길동">
+    </div>
+
+    <div class="form-group">
+        <label for="studentHeight">키 (cm)</label>
+        <input type="number" id="studentHeight" step="0.1" min="100" max="250" placeholder="예: 175.5">
+    </div>
+
+    <div class="form-group">
+        <label for="visionStatus">시력 상태</label>
+        <select id="visionStatus">
+            <option value="1">좋음 (1)</option>
+            <option value="0">나쁨 (0)</option>
+        </select>
+    </div>
+
+    <button type="button" class="btn-add" onclick="addStudent()">학생 추가</button>
+    <button type="button" class="btn-export" onclick="exportToJSON()">JSON 추출</button>
+
+    <h3>현재 추가된 학생 목록 (<span id="count">0</span>명)</h3>
+    <div id="studentList" class="student-list">추가된 학생이 없습니다.</div>
+
+    <div class="result-area">
+        <h3>Python 변환용 JSON 결과물</h3>
+        <pre id="jsonOutput">이곳에 결과 JSON 문자열이 표시됩니다.</pre>
+    </div>
+</div>
+
+<script>
+    // 학생 데이터를 누적 저장할 배열 (Python의 list[dict] 구조로 매핑됨)
+    const studentDataArray = [];
+
+    function addStudent() {
+        const nameInput = document.getElementById('studentName');
+        const heightInput = document.getElementById('studentHeight');
+        const visionSelect = document.getElementById('visionStatus');
+
+        const name = nameInput.value.trim();
+        const height = parseFloat(heightInput.value);
+        const visionStatus = parseInt(visionSelect.value, 10);
+
+        // 유효성 검사 (빈 값 또는 비정상 데이터 방지)
+        if (!name) {
+            alert('이름을 입력해 주세요.');
+            return;
+        }
+        if (isNaN(height) || height <= 0) {
+            alert('올바른 키 숫자를 입력해 주세요.');
+            return;
+        }
+
+        // 객체 생성 및 배열 삽입
+        const studentObj = {
+            name: name,
+            height: height,          // 명확하게 float 타입 보장
+            vision_status: visionStatus // 명확하게 int (0 또는 1) 보장
+        };
+
+        studentDataArray.push(studentObj);
+        updateStudentListUI();
+
+        // 다음 입력을 위해 필드 초기화
+        nameInput.value = '';
+        heightInput.value = '';
+        nameInput.focus();
+    }
+
+    function updateStudentListUI() {
+        const listDiv = document.getElementById('studentList');
+        const countSpan = document.getElementById('count');
+        
+        countSpan.innerText = studentDataArray.length;
+
+        if (studentDataArray.length === 0) {
+            listDiv.innerHTML = '추가된 학생이 없습니다.';
+            return;
+        }
+
+        listDiv.innerHTML = studentDataArray.map((s, index) => 
+            `<div>[${index + 1}] 이름: ${s.name} | 키: ${s.height}cm | 시력: ${s.vision_status === 1 ? '좋음(1)' : '나쁨(0)'}</div>`
+        ).join('');
+    }
+
+    function exportToJSON() {
+        if (studentDataArray.length === 0) {
+            alert('추출할 데이터가 없습니다. 먼저 학생을 추가하십시오.');
+            return;
+        }
+        
+        // JSON 문자열 변환 및 가독성을 위한 들여쓰기(4공백) 적용
+        const jsonString = JSON.stringify(studentDataArray, null, 4);
+        document.getElementById('jsonOutput').innerText = jsonString;
+    }
+</script>
+
+</body>
+</html>
