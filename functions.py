@@ -105,4 +105,4 @@ def stdntset(stndt):
     x = 12
     for i in range(x):
         n +=1
-        if stndt
+        
