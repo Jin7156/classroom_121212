@@ -86,3 +86,23 @@ def calculate_visibility(eye_pos, board_bounds, board_resolution, obstacles):
     visibility_ratio = ((num_rays - blocked_count) / num_rays) * 100.0
     
     return visibility_ratio, blocked_count
+
+
+
+def sort_by_height(student_dict):
+    """
+    학생 딕셔너리를 키(value) 순으로 정렬하는 함수
+    - reverse=False: 키가 작은 순서대로 (오름차순)
+    - reverse=True: 키가 큰 순서대로 (내림차순)
+    """
+    # student_dict.items()로 (이름, 키) 쌍을 꺼내고, 
+    # x[1](즉, 키)을 기준으로 정렬합니다.
+    sorted_result = sorted(student_dict.items(), key=lambda x: x[1], reverse=False)
+    
+    return sorted_result
+
+def stdntset(stndt):
+    x = 12
+    for i in range(x):
+        n +=1
+        if stndt
