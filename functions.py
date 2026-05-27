@@ -4,11 +4,6 @@ import config as cn
 
 #js에서 받은 값을 dick형태로 저장해야함, js에서 object형태로 저장하고 json으로 바꾼다음 json을 python의 dick으로 저장
 
-def v2randomset(dict): #키와 시력에 따라 다른 리스트에 사람의 키를 저장하자, 그 값은 아래의 주석처리한 코드를 참조하여 해보자
-    names = list(dict.keys())
-    for i in range(len(names)):
-        if dict.key[names[i]]:
-            print(1)
 
 
 
@@ -100,9 +95,3 @@ def sort_by_height(student_dict):
     sorted_result = sorted(student_dict.items(), key=lambda x: x[1], reverse=False)
     
     return sorted_result
-
-def stdntset(stndt):
-    x = 12
-    for i in range(x):
-        n +=1
-        

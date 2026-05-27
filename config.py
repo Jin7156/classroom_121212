@@ -9,7 +9,7 @@ clasroom = [
 plate = [82,0,89, 619, 0, 216]#칠판 크기
 
  #실측정 값 필요함esk_lst = [ #실측정 값 필요함]
-desk_lst_highbad = [
+desk_lst_highbad = [ #8자리
     [],
     [],
     [],
@@ -20,7 +20,7 @@ desk_lst_highbad = [
     [],
 ]
 
-desk_lst_shortbad = [
+desk_lst_shortbad = [ #6자리
     [],
     [],
     [],
@@ -29,7 +29,7 @@ desk_lst_shortbad = [
     []
 ]
 
-desk_lst_higgood = [
+desk_lst_higgood = [ #10자리
     [],
     [],
     [],
@@ -42,7 +42,7 @@ desk_lst_higgood = [
     []
 ]
 
-desk_lst_shortgood = [
+desk_lst_shortgood = [ #6자리
     [],
     [],
     [],
@@ -67,3 +67,12 @@ numpy_class = [
 ]
 numpy_desks = []
 numpy_plate = []
+
+
+desk_lst_highbad_name = []
+
+desk_lst_shortbad_name = []
+
+desk_lst_higgood_name = []
+
+desk_lst_shortgood_name = []
