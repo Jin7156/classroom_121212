@@ -87,17 +87,17 @@ def calculate_visibility(eye_pos, board_bounds, board_resolution, obstacles):
 
 
 
-    def sort_by_height(student_dict):
-        """
-        학생 딕셔너리를 키(value) 순으로 정렬하는 함수
-        - reverse=False: 키가 작은 순서대로 (오름차순)
-        - reverse=True: 키가 큰 순서대로 (내림차순)
-        """
-        # student_dict.items()로 (이름, 키) 쌍을 꺼내고, 
-        # x[1](즉, 키)을 기준으로 정렬합니다.
-        sorted_result = sorted(student_dict.items(), key=lambda x: x[1], reverse=False)
-        
-        return sorted_result
+def sort_by_height(student_dict):
+    """
+    학생 딕셔너리를 키(value) 순으로 정렬하는 함수
+    - reverse=False: 키가 작은 순서대로 (오름차순)
+    - reverse=True: 키가 큰 순서대로 (내림차순)
+    """
+    # student_dict.items()로 (이름, 키) 쌍을 꺼내고, 
+    # x[1](즉, 키)을 기준으로 정렬합니다.
+    sorted_result = sorted(student_dict.items(), key=lambda x: x[1], reverse=False)
+    
+    return sorted_result
 
 
 
@@ -131,7 +131,7 @@ def random_stndt(lst):
     # ==========================================
     # (1) 시력에 따라 1차 분류 (item[0]은 이름/ID, item[1]은 키)
     for item in cn.desk_lst_short_name:
-        student_id = item[0]
+        student_id = item if isinstance(item, str) else item[0]
         if cn.stdnteye_dict.get(student_id) == 0:
             cn.desk_lst_shortbad_name.append(student_id)
         else:
@@ -151,7 +151,7 @@ def random_stndt(lst):
     # ==========================================
     # (1) 시력에 따라 1차 분류
     for item in cn.desk_lst_high_name:
-        student_id = item[0]
+        student_id = item if isinstance(item, str) else item[0]
         if cn.stdnteye_dict.get(student_id) == 0:
             cn.desk_lst_highbad_name.append(student_id)
         else:

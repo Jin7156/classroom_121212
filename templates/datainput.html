@@ -8,7 +8,7 @@
         .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; resize: vertical; }
         button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-add { background-color: #007bff; color: white; }
         .btn-export { background-color: #28a745; color: white; margin-left: 10px; }
@@ -23,25 +23,13 @@
     <h2>학생 데이터 입력 폼</h2>
     
     <div class="form-group">
-        <label for="studentName">이름</label>
-        <input type="text" id="studentName" placeholder="예: 홍길동">
-    </div>
-
-    <div class="form-group">
-        <label for="studentHeight">키 (cm)</label>
-        <input type="number" id="studentHeight" step="0.1" min="100" max="250" placeholder="예: 175.5">
-    </div>
-
-    <div class="form-group">
-        <label for="visionStatus">시력 상태</label>
-        <select id="visionStatus">
-            <option value="1">좋음 (1)</option>
-            <option value="0">나쁨 (0)</option>
-        </select>
+        <label for="bulkInput">학생 데이터 일괄 입력</label>
+        <textarea id="bulkInput" rows="5" placeholder="예: (홍길동, 175.5, 1), (김철수, 180.2, 0)"></textarea>
+        <small style="color: #718093; display: block; margin-top: 5px;">* 형식: (이름, 키, 시력 상태) - 쉼표로 구분하여 여러 명 입력 가능 (시력: 좋음 1, 나쁨 0)</small>
     </div>
 
     <button type="button" class="btn-add" onclick="addStudent()">학생 추가</button>
-    <button type="button" class="btn-export" onclick="exportToJSON()">JSON 추출</button>
+    <button type="button" class="btn-export" onclick="sendToBackend()">자리 배치하기 (백엔드 전송)</button>
 
     <h3>현재 추가된 학생 목록 (<span id="count">0</span>명)</h3>
     <div id="studentList" class="student-list">추가된 학생이 없습니다.</div>
@@ -57,38 +45,45 @@
     const studentDataArray = [];
 
     function addStudent() {
-        const nameInput = document.getElementById('studentName');
-        const heightInput = document.getElementById('studentHeight');
-        const visionSelect = document.getElementById('visionStatus');
+        const bulkInput = document.getElementById('bulkInput');
+        const text = bulkInput.value.trim();
 
-        const name = nameInput.value.trim();
-        const height = parseFloat(heightInput.value);
-        const visionStatus = parseInt(visionSelect.value, 10);
-
-        // 유효성 검사 (빈 값 또는 비정상 데이터 방지)
-        if (!name) {
-            alert('이름을 입력해 주세요.');
-            return;
-        }
-        if (isNaN(height) || height <= 0) {
-            alert('올바른 키 숫자를 입력해 주세요.');
+        if (!text) {
+            alert('데이터를 입력해 주세요.');
             return;
         }
 
-        // 객체 생성 및 배열 삽입
-        const studentObj = {
-            name: name,
-            height: height,          // 명확하게 float 타입 보장
-            vision_status: visionStatus // 명확하게 int (0 또는 1) 보장
-        };
+        // (이름, 키, 시력) 형식을 매칭하는 정규표현식
+        const regex = /\(([^,]+),\s*([^,]+),\s*([^)]+)\)/g;
+        let match;
+        let countAdded = 0;
 
-        studentDataArray.push(studentObj);
-        updateStudentListUI();
+        while ((match = regex.exec(text)) !== null) {
+            const name = match[1].trim();
+            const height = parseFloat(match[2].trim());
+            const visionStatus = parseInt(match[3].trim(), 10);
 
-        // 다음 입력을 위해 필드 초기화
-        nameInput.value = '';
-        heightInput.value = '';
-        nameInput.focus();
+            if (name && !isNaN(height) && (visionStatus === 0 || visionStatus === 1)) {
+                // 이름 중복 검사 후 리스트에 추가
+                const isDuplicate = studentDataArray.some(s => s.name === name);
+                if (!isDuplicate) {
+                    studentDataArray.push({
+                        name: name,
+                        height: height,
+                        vision_status: visionStatus
+                    });
+                    countAdded++;
+                }
+            }
+        }
+
+        if (countAdded > 0) {
+            updateStudentListUI();
+            alert(`${countAdded}명의 학생이 추가되었습니다.`);
+            bulkInput.value = '';
+        } else {
+            alert('올바른 학생 데이터 형식을 찾지 못했습니다.\n입력 형식 예시: (홍길동, 175.5, 1), (김철수, 180.2, 0)');
+        }
     }
 
     function updateStudentListUI() {
@@ -107,15 +102,31 @@
         ).join('');
     }
 
-    function exportToJSON() {
+    async function sendToBackend() {
         if (studentDataArray.length === 0) {
-            alert('추출할 데이터가 없습니다. 먼저 학생을 추가하십시오.');
+            alert('데이터가 없습니다. 먼저 학생을 추가하십시오.');
             return;
         }
         
-        // JSON 문자열 변환 및 가독성을 위한 들여쓰기(4공백) 적용
-        const jsonString = JSON.stringify(studentDataArray, null, 4);
-        document.getElementById('jsonOutput').innerText = jsonString;
+        try {
+            const response = await fetch('/api/set-students', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(studentDataArray)
+            });
+            
+            if (response.ok) {
+                // 성공 시 자리 배치 페이지로 이동
+                window.location.href = '/arrange';
+            } else {
+                alert('데이터 전송에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('서버 오류가 발생했습니다.');
+        }
     }
 </script>
 
