@@ -1,6 +1,9 @@
+import hashlib
+from pydantic._internal import _model_construction
+from fastapi import datastructures
 import numpy as np
 import random as rm
-import config as cn
+import classroom_121212.config as cn
 
 #js에서 받은 값을 dick형태로 저장해야함, js에서 object형태로 저장하고 json으로 바꾼다음 json을 python의 dick으로 저장
 
@@ -84,14 +87,83 @@ def calculate_visibility(eye_pos, board_bounds, board_resolution, obstacles):
 
 
 
-def sort_by_height(student_dict):
-    """
-    학생 딕셔너리를 키(value) 순으로 정렬하는 함수
-    - reverse=False: 키가 작은 순서대로 (오름차순)
-    - reverse=True: 키가 큰 순서대로 (내림차순)
-    """
-    # student_dict.items()로 (이름, 키) 쌍을 꺼내고, 
-    # x[1](즉, 키)을 기준으로 정렬합니다.
-    sorted_result = sorted(student_dict.items(), key=lambda x: x[1], reverse=False)
+    def sort_by_height(student_dict):
+        """
+        학생 딕셔너리를 키(value) 순으로 정렬하는 함수
+        - reverse=False: 키가 작은 순서대로 (오름차순)
+        - reverse=True: 키가 큰 순서대로 (내림차순)
+        """
+        # student_dict.items()로 (이름, 키) 쌍을 꺼내고, 
+        # x[1](즉, 키)을 기준으로 정렬합니다.
+        sorted_result = sorted(student_dict.items(), key=lambda x: x[1], reverse=False)
+        
+        return sorted_result
+
+
+
+
+
+
+
+
+
+
+
+import random
+
+def random_stndt(lst):
+    # 1. 각 그룹(Short / High)의 배정해야 할 총원(자리수) 계산
+    a = len(cn.desk_lst_shortbad) + len(cn.desk_lst_shortgood)
+    b = len(cn.desk_lst_highbad) + len(cn.desk_lst_highgood)
     
-    return sorted_result
+
+    cn.desk_lst_short_name = lst[:a]
+    cn.desk_lst_high_name = lst[a:a+b]
+
+    # 결과 리스트 초기화 (매번 새로 분류하기 위함)
+    cn.desk_lst_shortbad_name = []
+    cn.desk_lst_shortgood_name = []
+    cn.desk_lst_highbad_name = []
+    cn.desk_lst_highgood_name = []
+
+    # ==========================================
+    # 2. 키가 작은 학생(Short) 처리 영역
+    # ==========================================
+    # (1) 시력에 따라 1차 분류 (item[0]은 이름/ID, item[1]은 키)
+    for item in cn.desk_lst_short_name:
+        student_id = item[0]
+        if cn.stdnteye_dict.get(student_id) == 0:
+            cn.desk_lst_shortbad_name.append(student_id)
+        else:
+            cn.desk_lst_shortgood_name.append(student_id)
+
+    # (2) while문 + 랜덤 pop으로 부족한 인원 채우기
+    target_shortbad = len(cn.desk_lst_shortbad)
+    while len(cn.desk_lst_shortbad_name) < target_shortbad:
+        if not cn.desk_lst_shortgood_name:  # 시력 좋은 학생이 더 없으면 탈출
+            break
+        random_idx = random.randrange(len(cn.desk_lst_shortgood_name))
+        chosen_student = cn.desk_lst_shortgood_name.pop(random_idx)
+        cn.desk_lst_shortbad_name.append(chosen_student)
+
+    # ==========================================
+    # 3. 키가 큰 학생(High) 처리 영역
+    # ==========================================
+    # (1) 시력에 따라 1차 분류
+    for item in cn.desk_lst_high_name:
+        student_id = item[0]
+        if cn.stdnteye_dict.get(student_id) == 0:
+            cn.desk_lst_highbad_name.append(student_id)
+        else:
+            cn.desk_lst_highgood_name.append(student_id)
+
+    # (2) while문 + 랜덤 pop으로 부족한 인원 채우기
+    target_highbad = len(cn.desk_lst_highbad)
+    while len(cn.desk_lst_highbad_name) < target_highbad:
+        if not cn.desk_lst_highgood_name:  # 시력 좋은 학생이 더 없으면 탈출
+            break
+        random_idx = random.randrange(len(cn.desk_lst_highgood_name))
+        chosen_student = cn.desk_lst_highgood_name.pop(random_idx)
+        cn.desk_lst_highbad_name.append(chosen_student)
+    
+    return ()
